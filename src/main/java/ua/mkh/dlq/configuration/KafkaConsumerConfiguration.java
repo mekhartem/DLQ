@@ -10,6 +10,8 @@ import org.springframework.kafka.config.KafkaListenerContainerFactory;
 import org.springframework.kafka.core.ConsumerFactory;
 import org.springframework.kafka.core.DefaultKafkaConsumerFactory;
 import org.springframework.kafka.listener.ConcurrentMessageListenerContainer;
+import org.springframework.kafka.support.serializer.JsonSerializer;
+import ua.mkh.dlq.dto.TransactionDto;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -21,16 +23,16 @@ public class KafkaConsumerConfiguration {
     private String bootstrapServers;
 
     @Bean
-    public KafkaListenerContainerFactory<ConcurrentMessageListenerContainer<String, String>> factory(
-            ConsumerFactory<String, String> consumerFactory){
+    public KafkaListenerContainerFactory<ConcurrentMessageListenerContainer<String, TransactionDto>> factory(
+            ConsumerFactory<String, TransactionDto> consumerFactory) {
 
-        var factory = new ConcurrentKafkaListenerContainerFactory<String, String>();
+        var factory = new ConcurrentKafkaListenerContainerFactory<String, TransactionDto>();
         factory.setConsumerFactory(consumerFactory);
         return factory;
     }
 
     @Bean
-    public ConsumerFactory<String, String> consumerFactory() {
+    public ConsumerFactory<String, TransactionDto> consumerFactory() {
         return new DefaultKafkaConsumerFactory<>(consumerConfig());
     }
 
@@ -38,7 +40,7 @@ public class KafkaConsumerConfiguration {
         return new HashMap<>() {{
             put(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, bootstrapServers);
             put(ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG, StringSerializer.class);
-            put(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG, StringSerializer.class);
+            put(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG, JsonSerializer.class);
         }};
     }
 }

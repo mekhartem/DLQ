@@ -5,6 +5,7 @@ import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.Bean;
 import org.springframework.kafka.core.KafkaTemplate;
+import ua.mkh.dlq.dto.TransactionDto;
 
 @SpringBootApplication
 public class DlqApplication {
@@ -13,8 +14,8 @@ public class DlqApplication {
     }
 
     @Bean
-    CommandLineRunner commandLineRunner(KafkaTemplate<String, String> kafkaTemplate) {
-        return args -> kafkaTemplate.send("transactions", "hello kafka");
+    CommandLineRunner commandLineRunner(KafkaTemplate<String, TransactionDto> kafkaTemplate) {
+        return args -> kafkaTemplate.send("transactions", new TransactionDto("main message"));
     }
 
 }
