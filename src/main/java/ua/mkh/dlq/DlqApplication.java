@@ -15,7 +15,7 @@ public class DlqApplication {
 
     @Bean
     CommandLineRunner commandLineRunner(KafkaTemplate<String, TransactionDto> kafkaTemplate) {
-        return args -> kafkaTemplate.send("transactions", new TransactionDto("main message"));
+        return args -> kafkaTemplate.send("transactions", new TransactionDto("main message", 10));
     }
 
 }
