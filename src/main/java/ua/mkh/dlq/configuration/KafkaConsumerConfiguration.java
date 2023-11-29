@@ -43,12 +43,18 @@ public class KafkaConsumerConfiguration {
 
     @Bean
     public DefaultErrorHandler defaultErrorHandler() {
-        var defaultErrorHandler =
-                new DefaultErrorHandler(new FixedBackOff(INTERVAL, FixedBackOff.UNLIMITED_ATTEMPTS));
+        var defaultErrorHandler = new DefaultErrorHandler();
 
         defaultErrorHandler.addRetryableExceptions(RuntimeException.class);
         defaultErrorHandler.addNotRetryableExceptions(SocketException.class);
         defaultErrorHandler.setAckAfterHandle(true);
+
+        defaultErrorHandler.setBackOffFunction((record, exception) -> {
+            if (exception instanceof RuntimeException) {
+                return new FixedBackOff(0, 10L);
+            }
+            return new FixedBackOff(INTERVAL, FixedBackOff.UNLIMITED_ATTEMPTS);
+        });
 
         return defaultErrorHandler;
     }
