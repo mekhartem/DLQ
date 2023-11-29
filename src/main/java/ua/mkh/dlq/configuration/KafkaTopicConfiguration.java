@@ -12,4 +12,9 @@ public class KafkaTopicConfiguration {
     public NewTopic kafkaTopic() {
         return TopicBuilder.name("transactions").build();
     }
+
+    @Bean
+    public NewTopic kafkaTopicDlq() {
+        return TopicBuilder.name("transactions_dlq").build();
+    }
 }

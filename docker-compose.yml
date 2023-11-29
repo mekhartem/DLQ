@@ -17,3 +17,6 @@ services:
       KAFKA_CREATE_TOPICS: "transactions:1:1"
     depends_on:
       - zookeeper
+
+#docker container exec -it kafka /bin/bash
+#kafka-console-consumer.sh --topic ${topic_name} --from-beginning --bootstrap-server localhost:9092
