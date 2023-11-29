@@ -17,6 +17,7 @@ import org.springframework.kafka.support.serializer.JsonDeserializer;
 import org.springframework.util.backoff.FixedBackOff;
 import ua.mkh.dlq.dto.TransactionDto;
 
+import java.net.SocketException;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -30,18 +31,26 @@ public class KafkaConsumerConfiguration {
 
     @Bean
     public KafkaListenerContainerFactory<ConcurrentMessageListenerContainer<String, TransactionDto>> listenerContainerFactory(
-            ConsumerFactory<String, TransactionDto> consumerFactory) {
+            ConsumerFactory<String, TransactionDto> consumerFactory, DefaultErrorHandler defaultErrorHandler) {
 
         var factory = new ConcurrentKafkaListenerContainerFactory<String, TransactionDto>();
+
         factory.setConsumerFactory(consumerFactory);
         factory.getContainerProperties().setObservationEnabled(true);
+        factory.setCommonErrorHandler(defaultErrorHandler);
+        return factory;
+    }
+
+    @Bean
+    public DefaultErrorHandler defaultErrorHandler() {
         var defaultErrorHandler =
                 new DefaultErrorHandler(new FixedBackOff(INTERVAL, FixedBackOff.UNLIMITED_ATTEMPTS));
 
+        defaultErrorHandler.addRetryableExceptions(RuntimeException.class);
+        defaultErrorHandler.addNotRetryableExceptions(SocketException.class);
         defaultErrorHandler.setAckAfterHandle(true);
-        factory.setCommonErrorHandler(defaultErrorHandler);
 
-        return factory;
+        return defaultErrorHandler;
     }
 
     @Bean
